@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function loadStates() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var xmlDoc = this.responseXML;
+                    var states = xmlDoc.getElementsByTagName("state");
+                    var select = document.getElementById("stateSelect");
+                    for (var i = 0; i < states.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = states[i].getAttribute("name");
+                        option.value = states[i].getAttribute("id");
+                        select.add(option);
+                    }
+                }
+            };
+            xmlhttp.open("GET", "./states.xml", true);
+            xmlhttp.send();
+        }
+
+        function loadCities() {
+            var stateId = document.getElementById("stateSelect").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var xmlDoc = this.responseXML;
+                    var cities = xmlDoc.getElementsByTagName("city");
+                    var select = document.getElementById("citySelect");
+                    select.innerHTML = '';
+                    for (var i = 0; i < cities.length; i++) {
+                        if (cities[i].getAttribute("state_id") === stateId) {
+                            var option = document.createElement("option");
+                            option.text = cities[i].getAttribute("name");
+                            option.value = cities[i].getAttribute("id");
+                            select.add(option);
+                        }
+                    }
+                }
+            };
+            xmlhttp.open("GET", "./cities.xml", true);
+            xmlhttp.send();
+        }
+    </script>
+</head>
+
+<body onload="loadStates()">
+    <h2>Lista de Estados y Ciudades</h2>
+    <select id="stateSelect" onchange="loadCities()">
+        <option value="">Selecciona un Estado</option>
+    </select>
+    <br><br>
+    <select id="citySelect">
+        <option value="">Primero selecciona un Estado</option>
+    </select>
+</body>
+
+</html>
