@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function loadStates() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var states = JSON.parse(this.responseText);
+                    var select = document.getElementById("stateSelect");
+                    for (var i = 0; i < states.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = states[i].name;
+                        option.value = states[i].id;
+                        select.add(option);
+                    }
+                }
+            };
+            xmlhttp.open("GET", "https://my-json-server.typicode.com/rmelchorv/tw-ii/states", true);
+            xmlhttp.send();
+        }
+
+        function loadCities() {
+            var stateId = document.getElementById("stateSelect").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var cities = JSON.parse(this.responseText);
+                    var select = document.getElementById("citySelect");
+                    select.innerHTML = '';
+                    for (var i = 0; i < cities.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = cities[i].name;
+                        option.value = cities[i].id;
+                        select.add(option);
+                    }
+                }
+            };
+            xmlhttp.open("GET", "https://my-json-server.typicode.com/rmelchorv/tw-ii/cities?state=" + stateId, true);
+            xmlhttp.send();
+        }
+
+        function addCity() {
+            var selectedState = document.getElementById("stateSelect").value;
+            if (selectedState === "20") { // Validación para Oaxaca
+                var cityName = document.getElementById("cityName").value;
+                var abbr = document.getElementById("stateSelect").options[document.getElementById("stateSelect").selectedIndex].text.slice(0, 3);
+                var data = {
+                    "name": cityName,
+                    "abbr": abbr,
+                    "state": selectedState
+                };
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 201) {
+                        var newCity = JSON.parse(this.responseText);
+                        alert("Nueva ciudad agregada:\nNombre: " + newCity.name + "\nAbbr: " + newCity.abbr + "\nState: " + newCity.state);
+                    }
+                };
+                xmlhttp.open("POST", "https://my-json-server.typicode.com/rmelchorv/tw-ii/cities", true);
+                xmlhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+                xmlhttp.send(JSON.stringify(data));
+            } else {
+                alert("Solo se pueden agregar ciudades para el estado de Oaxaca.");
+            }
+        }
+    </script>
+</head>
+
+<body onload="loadStates()">
+    <h2>Lista de Estados y Ciudades</h2>
+    <select id="stateSelect" onchange="loadCities()">
+        <option value="">Selecciona un Estado</option>
+    </select>
+    <br><br>
+    <select id="citySelect">
+        <option value="">Primero selecciona un Estado</option>
+    </select>
+    <br><br>
+    <input type="text" id="cityName" placeholder="Nombre de la Ciudad">
+    <button onclick="addCity()">Agregar Ciudad</button>
+</body>
+
+</html>
